@@ -1,0 +1,80 @@
+# ============================================================================
+# PDF Image Extraction - Requirements
+# ============================================================================
+# Core dependencies for the pdf-image-extraction module
+# Python: 3.11+ (tested on 3.11, 3.12)
+# Last updated: 2025-11-13 | PyMuPDF migrated from 1.14.21 to 1.26.6
+# ============================================================================
+
+# ---- Core PDF & Image Processing (Production) ----
+# PyMuPDF: PDF rendering and image extraction
+# Version 1.26.6+ required for latest API (snake_case methods)
+# Fixes: _getXrefString() -> xref_object(), setAlpha() -> set_alpha()
+# Python 3.11+ compatibility ensured
+PyMuPDF==1.26.6
+
+# Pillow: Image manipulation and PNG encoding/decoding
+# Used for: Image compositing, PNG encoding with alpha channels, format conversion
+# Version 12.0.0+ provides optimal PNG/RGBA handling
+# Python 3.11+ compatible
+Pillow>=12.0.0
+
+# NumPy: Numerical and array operations
+# Used for: Image pixel manipulation, color space conversions, array operations
+# Version 2.0+ optimized for Python 3.11+
+# Windows/Linux/macOS all supported
+numpy>=2.0.0
+
+# ============================================================================
+# Optional Development & Evaluation Dependencies (Recommended)
+# ============================================================================
+# Uncomment for development, testing, and evaluation workflows
+
+# Jupyter notebook environment and visualization:
+# jupyter>=1.0.0
+# notebook>=7.0.0
+# jupyterlab>=4.0.0
+
+# Data analysis and visualization:
+# pandas>=2.0.0
+# matplotlib>=3.8.0
+# seaborn>=0.13.0
+
+# Image quality evaluation (SSIM metrics):
+# scikit-image>=0.22.0
+# opencv-python>=4.8.0
+
+# Testing and code quality:
+# pytest>=7.0.0
+# pytest-cov>=4.0.0
+# flake8>=6.0.0
+# black>=23.0.0
+
+# ============================================================================
+# Version Compatibility Matrix
+# ============================================================================
+# Python 3.11: ✅ All packages compatible
+# Python 3.12: ✅ All packages compatible
+# Python 3.10: ⚠️  May work with older versions (not tested)
+# Python 3.9:  ❌ Not supported (use older package versions)
+#
+# Key package versions tested:
+# - PyMuPDF: 1.26.6
+# - Pillow: 12.0.0
+# - NumPy: 2.2.6
+# - Pandas: 2.3.3
+# - Matplotlib: 3.10.7
+# - OpenCV: 4.12.0
+# - scikit-image: 0.25.2
+#
+# ============================================================================
+# Notes:
+# ============================================================================
+# PyMuPDF is imported as 'fitz' in code: import fitz (PyMuPDF package name)
+# All core extraction modes (safe, normal, unsafe) use only 3 main packages:
+#   1. PyMuPDF (pdf processing)
+#   2. Pillow (image manipulation)
+#   3. NumPy (numerical operations)
+# For Docker deployment, only these 3 core packages are needed (~250 MB image)
+# Optional packages only needed for evaluation notebooks and testing
+# ============================================================================

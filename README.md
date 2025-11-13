@@ -1,140 +1,161 @@
-# PDF Content Extraction 
-A  PDF Figure extraction tool for scientific documents.
+# PDF Image Extraction 
 
-
+A robust PDF figure extraction tool for scientific documents using PyMuPDF with support for corrupted PDF handling.
 
 ![](.figs/PDF-content-extraction.png)
 
-The article page above was extracted from Kravets et al. [1] under creative commons (CC-BY).
+## Features
 
+- **Multiple extraction modes**: safe, normal (recommended), and unsafe
+- **Corruption handling**: Can reconstruct figures from PDFs with certain types of corruption
+- **Smart filtering**: Removes duplicate and single-color images
+- **Docker support**: Containerized extraction service
+- **Python API**: Easy integration into other tools
 
+## Installation
 
+### From Source
 
+```bash
+# Install the package in development mode
+pip install -e .
 
-The *PDF content extraction tool* extracts all figures along with their captions embedded in scientific PDF documents. The solution finds all figures embedded in the PDF document (source code) that were inserted during the document preparation.
+# Or install with all dependencies at once
+pip install -r requirements.txt
+pip install -e .
+```
 
-As a special feature, the tool can extract figures from PDFs that suffered a certain level of corruption.
+### Using Docker
 
-For instance, a figure that was cropped into several pieces due to an error in the PDF would be fixed:
+```bash
+# Build the Docker image
+docker build -t pdf-extractor:latest -f Dockerfile .
+```
 
-![](.figs/PDF-corrupted-figure.png)
+## Quick Start
 
-The [figure](https://www.flickr.com/photos/146824358@N03/34062338520) above is licensed under Public Domain 
+### Command Line
 
+```bash
+# Extract images from a single PDF
+extract-images -i input.pdf -o ./output
 
+# Extract from a directory of PDFs
+extract-images -i /path/to/pdfs -o ./output -m normal
 
+# Use safe mode (most conservative)
+extract-images -i document.pdf -o ./output -m safe
+```
 
+### Python API
 
-## Figure Extraction
+```python
+from pdf_image_extraction import PDFExtractor
 
-### Instruction
+# Create extractor
+extractor = PDFExtractor(input_path='document.pdf')
 
-A Dockerfile wrapping the solution and all needed environment is set in the `/docker`. 
+# Extract images in normal mode
+extractor.extract_all(out_name='./output', mode='normal')
+```
 
-To build the docker use:
+### Service API
 
-​	`$ cd docker && ./build`
+```python
+from pdf_image_extraction_service.image_extractor_service import ImageExtractorService
 
-After this, use the script `run_image_extraction.sh` file to communicate with the docker and perform PDF figure extraction with the following command:
+# Create service
+service = ImageExtractorService(extraction_mode='normal')
 
-` $ run_image_extraction.sh <input_pdf_path> <output_directory> ` 
+# Extract from single PDF
+images = service.extract_images('document.pdf', './output')
 
+# Extract from multiple PDFs
+pdf_list = ['doc1.pdf', 'doc2.pdf', 'doc3.pdf']
+results = service.extract_images_batch(pdf_list, './output')
+```
 
+### Docker
 
-All extracted figures are saved in PNG and named as its position on the document followed by a figure ID. Example:
+```bash
+# Run extraction with Docker using environment variables
+docker run \
+  -v $(pwd):/INPUT \
+  -v $(pwd)/output:/OUTPUT \
+  -e INPUT_PATH=/INPUT/sample.pdf \
+  -e OUTPUT_PATH=/OUTPUT \
+  -e EXTRACTION_MODE=normal \
+  pdf-extractor:latest --env
 
+# Or use CLI arguments
+docker run \
+  -v $(pwd):/work \
+  pdf-extractor:latest \
+  -i /work/sample.pdf \
+  -o /work/output \
+  -m normal
+```
+
+## Extraction Modes
+
+### Safe Mode (`-m safe`)
+- Extracts only xreferred images
+- Most conservative approach
+- Recommended for quick extraction when speed is priority
+
+### Normal Mode (`-m normal`) [Default]
+- Extracts xreferred images
+- Includes duplicate detection
+- Handles PDF corruption
+- **Recommended for most use cases**
+
+### Unsafe Mode (`-m unsafe`)
+- Extracts all images without xref warranty
+- Not recommended - may produce duplicates
+- Use only if other modes fail
+
+## Output Format
+
+Extracted images are saved as PNG files with naming convention:
+
+```
+p-{page}-x0-{x0}-y0-{y0}-x1-{x1}-y1-{y1}-{count}.png
+```
+
+Where:
+- `page`: Page number in PDF (1-indexed)
+- `x0, y0, x1, y1`: Bounding box coordinates in PDF coordinates
+- `count`: Sequential image count
+
+Example:
 ```
 p-4-x0-40.000-y0-59.280-x1-553.600-y1-492.000-1.png
-page = 4
-x0   = 40.000
-y0   = 59.280
-x1   = 553.600
-y1   = 492.000
-ID   = 1
 ```
 
 
+## License
 
-**Caption-only Extraction**
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.
 
-If you want to extract only the figures caption, follow the instructions located at [caption_extraction](https://github.com/danielmoreira/sciint/tree/pdf-content-extraction/caption_extraction).
+See [LICENSE](LICENSE) file for full details.
 
+### Summary
 
+- **License Type:** AGPL-3.0
+  - Free to use, modify, and distribute
+  - If used in network/server applications, source code must be available to users
+  - Modifications must be documented and shared
+  - Derivative works must use the same license
 
-# Evaluation
+For more information, visit: https://www.gnu.org/licenses/agpl-3.0.html
 
-To evaluate the *PDF figure extraction*, we annotated the figures and caption of 285 PDFs scientific papers and downloaded the original figures and caption from its publishers' official website.
+## Cite this work
 
-The file [pdf-content-extraction-experimental-setup.json](dataset_tasks/pdf-content-extraction/pdf-content-extraction-experimental-setup.json) contains all annotation that we used to evaluate the tool (i.e., Figures URLs, PDF URLs, Figure positions, Caption texts).
+If you use this tool in your research, please cite:
 
+> Moreira, D., Cardenuto, J.P., Shao, R. et al. SILA: a system for scientific image analysis. Nature Scientific Reports 12 (18306), 2022. https://doi.org/10.1038/s41598-022-21535-3
 
-
-### Figure Extraction Evaluation
-
-To evaluate the figure extraction, we compared the extracted figures with the figures downloaded from the paper's website.
-
-**Metric**
-
-1. [Structural similarity index](https://en.wikipedia.org/wiki/Structural_similarity) (SSIM).
-We use the implementation of the scikit image library [4] during this evaluation.
-
-2. Image Recall (IR). Number of images successfully extracted. For this, we considered all images that have `SSIM >= 0.7`
-
-
-**Score**
-
-1. Average SSIM  = 0.77 (0.29)
-1. IR = 0.71
-
-
-You can reproduce our results by running the [PDF Image Extraction](PDF%20Image%20Extraction.ipynb) Notebook.
-
-
-
-### Text Evaluation 
-
-To evaluate text extraction, we compared the extracted caption with the caption presented in the paper's website.
-
-**Metrics**
-
-1. [BERT-SCORE](https://arxiv.org/abs/1904.09675) F1-measure [2]
-
-   This metric compares the semantic contextual of two sentences.
-
-   We use the implementation of [2] with the sci-bert-en model ( BERT trained on  Scientific English documents) during the evaluation. 
-
-2. [Levenshtein Similarity](https://en.wikipedia.org/wiki/Levenshtein_distance)
-
-   This metric calculates the similarity of two strings based on the Levenshtein Distances, which consider each insertion, deletion, substitution alongside two strings.
-
-   For this metric, we use the implementation of [3] during the evaluation.
-
-**Score**
-
-1. Average Bert-Score =  0.88 (0.24)
-2. Average Levenshtein Similarity = 0.84 (0.31)
-
-You can reproduce our results by running the [PDF Caption Extraction](PDF%20Caption%20Extraction.ipynb) Notebook.
-
-
-
-## References
-
-[1]  Kravets, Elisabeth et al. “Guanylate binding proteins directly attack Toxoplasma gondii via supramolecular complexes.” *eLife* vol. 5 e11479. 27 Jan. 2016, doi:10.7554/eLife.11479
-
-[2] Zhang, Tianyi, et al. "Bertscore: Evaluating text generation with bert." (ICRL 2019).  Code: https://github.com/Tiiiger/bert_score
-
-[3] **TextDistance** -- python library for comparing distance between two or more sequences by many algorithms. Code: https://github.com/life4/textdistance
-
-[4]  Stéfan van der Walt, Johannes L. Schönberger, Juan Nunez-Iglesias, François Boulogne, Joshua D. Warner, Neil Yager, Emmanuelle Gouillart, Tony Yu and the scikit-image contributors. **scikit-image: Image processing in Python**. PeerJ 2:e453 (2014) https://doi.org/10.7717/peerj.453
-
-
-## Cite this Work
-Please cite as:
-> Moreira, D., Cardenuto, J.P., Shao, R. et al. SILA: a system for scientific image analysis. Nature Scientific Reports 12 (18306), 2022.
-> https://doi.org/10.1038/s41598-022-21535-3
-
-```
+```bibtex
 @article{sila,
    author = {Moreira, Daniel and Cardenuto, João Phillipe and Shao, Ruiting and Baireddy, Sriram and Cozzolino, Davide and Gragnaniello, Diego and Abd‑Almageed, Wael and Bestagini, Paolo and Tubaro, Stefano and Rocha, Anderson and Scheirer, Walter and Verdoliva, Luisa and Delp, Edward},
    title = {{SILA: a system for scientifc image analysis}},
