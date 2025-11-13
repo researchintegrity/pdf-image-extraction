@@ -1,15 +1,22 @@
-pdf_image_extraction_dataset/
-pdf-img-extraction-test/
-pdf_image_extraction_dataset.zip
-scientific-integrity-v8/
+# Python and Jupyter
+.ipynb_checkpoints/
+.env
+nltk_download/
+
+# Project-specific datasets and data directories
 dataset/
 pdfs/
-extraction_time.txt
-xfigs/
 figures/
-.ipynb_checkpoints/
+xfigs/
 xcaps/
-nltk_download/
-.env
+extraction_time.txt
+
+# Data extraction projects
+caption_extraction/
+pdf-content-extraction-data/
+pdf_image_extraction_dataset/
+pdf_image_extraction_dataset.zip
+pdf-img-extraction-test/
+scientific-integrity-v8/
 
 
