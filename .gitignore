@@ -11,6 +11,12 @@ xfigs/
 xcaps/
 extraction_time.txt
 
+# Old directory structure (deprecated)
+PDF-Image-Extraction/
+print_page/
+docker/facade/
+docker/print_page/
+
 # Data extraction projects
 caption_extraction/
 pdf-content-extraction-data/
@@ -18,5 +24,15 @@ pdf_image_extraction_dataset/
 pdf_image_extraction_dataset.zip
 pdf-img-extraction-test/
 scientific-integrity-v8/
+
+# Build and package files
+*.pyc
+__pycache__/
+build/
+dist/
+*.egg-info/
+.eggs/
+uvenv/
+notebook_extraction_test/
 
 
