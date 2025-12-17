@@ -42,7 +42,6 @@ RUN mkdir -p /INPUT /OUTPUT
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPATH=/app/src:$PYTHONPATH \
     INPUT_PATH=/INPUT/sample.pdf \
     OUTPUT_PATH=/OUTPUT \
     EXTRACTION_MODE=normal
